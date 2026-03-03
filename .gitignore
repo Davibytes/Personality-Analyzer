@@ -62,8 +62,38 @@ node_modules/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
 # dataconnect generated files
 .dataconnect
+
+```
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.orig
+release.properties
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+*.class
+
+# Environment
+.env
+.env.local
+serviceAccountKey.json
+
+# Build
+build/
+*.jar
+*.war
+
+# Testing
+coverage/
+test-results/
