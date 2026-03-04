@@ -4,15 +4,17 @@ import com.deadline.analyzer.model.User;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.deadline.analyzer.util.Constants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import java.util.concurrent.ExecutionException;
 
 @Repository
 public class UserRepository {
 
-    @Autowired
-    private Firestore firestore;
+    private final Firestore firestore;
+
+    public UserRepository(Firestore firestore) {
+        this.firestore = firestore;
+    }
 
     public User save(User user) throws ExecutionException, InterruptedException {
         firestore.collection(Constants.FirestoreCollections.USERS)

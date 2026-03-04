@@ -12,29 +12,29 @@ import javax.crypto.SecretKey;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret.key}")
+    @Value("${jwt.secret.key:your-secret-key-change-in-production-min-32-chars}")
     private String jwtSecretKey;
 
-    @Value("${jwt.expiration.ms}")
+    @Value("${jwt.expiration.ms:86400000}")
     private long jwtExpirationMs;
 
-    public String generateToken(String userId, String email) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
+    }
 
+    public String generateToken(String userId, String email) {
         return Jwts.builder()
-                .setSubject(userId)
+                .subject(userId)
                 .claim("email", email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String getUserIdFromToken(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
-
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -43,13 +43,10 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
-
             Jwts.parserBuilder()
-                    .setSigningKey(key)
+                    .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(token);
-
             return true;
         } catch (Exception e) {
             return false;

@@ -17,55 +17,61 @@ public class PersonalityClassifier {
         int successCount = countSuccessfulTasks(tasks);
         double successRate = (double) successCount / tasks.size() * 100;
 
-        // Chronic Postponer
-        if (latePercentage > 60 && avgDup > 60) {
-            return Constants.PersonalityTypes.CHRONIC_POSTPONER;
-        }
+        return switch (tasks.size()) {
+            case 0 -> Constants.PersonalityTypes.STEADY_PLANNER;
+            default -> {
+                // Chronic Postponer
+                if (latePercentage > 60 && avgDup > 60) {
+                    yield Constants.PersonalityTypes.CHRONIC_POSTPONER;
+                }
 
-        // Panic Starter or Last-Minute Sprinter
-        if (avgDup >= Constants.DUPThresholds.PANIC) {
-            if (successRate >= 80) {
-                return Constants.PersonalityTypes.LAST_MINUTE;
+                // Panic Starter or Last-Minute Sprinter
+                if (avgDup >= Constants.DUPThresholds.PANIC) {
+                    yield successRate >= 80
+                            ? Constants.PersonalityTypes.LAST_MINUTE
+                            : Constants.PersonalityTypes.PANIC_STARTER;
+                }
+
+                // Perfectionist
+                if (avgDup < 40 && perfectionistCount > tasks.size() / 2) {
+                    yield Constants.PersonalityTypes.PERFECTIONIST;
+                }
+
+                // Steady Planner
+                if (avgDup >= Constants.DUPThresholds.STEADY_MIN &&
+                        avgDup <= Constants.DUPThresholds.STEADY_MAX) {
+                    yield Constants.PersonalityTypes.STEADY_PLANNER;
+                }
+
+                yield Constants.PersonalityTypes.STEADY_PLANNER;
             }
-            return Constants.PersonalityTypes.PANIC_STARTER;
-        }
-
-        // Perfectionist
-        if (avgDup < 40 && perfectionistCount > tasks.size() / 2) {
-            return Constants.PersonalityTypes.PERFECTIONIST;
-        }
-
-        // Steady Planner
-        if (avgDup >= Constants.DUPThresholds.STEADY_MIN &&
-                avgDup <= Constants.DUPThresholds.STEADY_MAX) {
-            return Constants.PersonalityTypes.STEADY_PLANNER;
-        }
-
-        return Constants.PersonalityTypes.STEADY_PLANNER;
+        };
     }
 
     public static String getRecommendation(String personalityType) {
-        switch (personalityType) {
-            case Constants.PersonalityTypes.PANIC_STARTER:
-                return "Break tasks into 3 sub-deadlines. Set early reminder notifications.";
-            case Constants.PersonalityTypes.PERFECTIONIST:
-                return "Set submission buffer time (24-48 hours). Focus on 'good enough'.";
-            case Constants.PersonalityTypes.CHRONIC_POSTPONER:
-                return "Schedule mandatory start reminder at 30% deadline. Use accountability partners.";
-            case Constants.PersonalityTypes.LAST_MINUTE:
-                return "You excel under pressure! Create buffer time for emergencies.";
-            case Constants.PersonalityTypes.STEADY_PLANNER:
-                return "Great job! Maintain your consistent approach. Help others adopt similar habits.";
-            default:
-                return "Track more tasks to get personalized recommendations.";
-        }
+        return switch (personalityType) {
+            case Constants.PersonalityTypes.PANIC_STARTER ->
+                    "Break tasks into 3 sub-deadlines. Set early reminder notifications.";
+            case Constants.PersonalityTypes.PERFECTIONIST ->
+                    "Set submission buffer time (24-48 hours). Focus on 'good enough'.";
+            case Constants.PersonalityTypes.CHRONIC_POSTPONER ->
+                    "Schedule mandatory start reminder at 30% deadline. Use accountability partners.";
+            case Constants.PersonalityTypes.LAST_MINUTE ->
+                    "You excel under pressure! Create buffer time for emergencies.";
+            case Constants.PersonalityTypes.STEADY_PLANNER ->
+                    "Great job! Maintain your consistent approach. Help others adopt similar habits.";
+            default -> "Track more tasks to get personalized recommendations.";
+        };
     }
 
     private static double calculateAverageDUP(List<Task> tasks) {
+        if (tasks.isEmpty()) {
+            return 0;
+        }
         double totalDUP = tasks.stream()
                 .mapToDouble(Task::getDup)
                 .sum();
-        return tasks.size() > 0 ? totalDUP / tasks.size() : 0;
+        return totalDUP / tasks.size();
     }
 
     private static int countLateSubmissions(List<Task> tasks) {

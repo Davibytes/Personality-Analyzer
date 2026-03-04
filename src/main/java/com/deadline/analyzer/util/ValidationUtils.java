@@ -25,22 +25,6 @@ public class ValidationUtils {
         return field != null && !field.trim().isEmpty();
     }
 
-    public static String getPasswordErrorMessage(String password) {
-        if (password == null || password.isEmpty()) {
-            return "Password cannot be empty";
-        }
-        if (password.length() < 8) {
-            return "Password must be at least 8 characters";
-        }
-        if (!password.matches(".*[A-Z].*")) {
-            return "Password must contain at least one uppercase letter";
-        }
-        if (!password.matches(".*\\d.*")) {
-            return "Password must contain at least one number";
-        }
-        return null;
-    }
-
     public static boolean isValidTaskTitle(String title) {
         return title != null && title.trim().length() >= 3 && title.trim().length() <= 200;
     }

@@ -97,3 +97,6 @@ build/
 # Testing
 coverage/
 test-results/
+
+#maven build
+./target
