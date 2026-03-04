@@ -10,6 +10,21 @@ firebase-debug.*.log*
 # Firebase cache
 .firebase/
 
+# Firebase Config (NEVER COMMIT THIS)
+src/firebaseConfig.js
+src/firebaseConfig.ts
+firebase-config.json
+serviceAccountKey.json
+
+# Google Cloud
+google-credentials.json
+gcp-key.json
+
+# Secrets
+*.key
+*.pem
+secrets/
+
 # Firebase config
 
 # Uncomment this if you'd like others to create their own Firebase project.
@@ -87,7 +102,6 @@ release.properties
 # Environment
 .env
 .env.local
-serviceAccountKey.json
 
 # Build
 build/
@@ -100,3 +114,6 @@ test-results/
 
 #maven build
 ./target
+
+# Node (if using)
+npm-debug.log
