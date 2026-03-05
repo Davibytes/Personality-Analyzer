@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Deadline Analyzer</title>
+    <link rel="stylesheet" href="css/colors.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-body">
+<!-- Navigation -->
+<nav class="navbar navbar-light">
+    <div class="container">
+        <div class="logo">
+            <span class="logo-icon">📅</span>
+            <span class="logo-text">Deadline Analyzer</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Back to Home</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Auth Container -->
+<div class="auth-container">
+    <div class="auth-wrapper">
+        <!-- Login Form -->
+        <div class="auth-box login-box" id="loginBox">
+            <div class="auth-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to your account to continue</p>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <form id="authForm" class="auth-form">
+                <div class="form-group">
+                    <label for="email">
+                        <span class="label-icon">📧</span>
+                        Email Address
+                    </label>
+                    <input
+                            type="email"
+                            id="email"
+                            placeholder="your@example.com"
+                            required
+                            autocomplete="email"
+                    >
+                    <span class="input-error" id="emailError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        <span class="label-icon">🔒</span>
+                        Password
+                    </label>
+                    <input
+                            type="password"
+                            id="password"
+                            placeholder="••••••••"
+                            required
+                            autocomplete="current-password"
+                    >
+                    <span class="input-error" id="passwordError"></span>
+                </div>
+
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Remember me</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-submit">
+                    <span>Sign In</span>
+                    <span class="spinner" style="display: none;"></span>
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+
+            <div class="auth-toggle">
+                <p>Don't have an account? <a href="#" id="toggleToSignup" class="toggle-link">Sign Up</a></p>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="auth-box signup-box" id="signupBox" style="display: none;">
+            <div class="auth-header">
+                <h2>Create Account</h2>
+                <p>Join us to start analyzing your deadline habits</p>
+            </div>
+
+            <div id="alertContainer2"></div>
+
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="fullName">
+                        <span class="label-icon">👤</span>
+                        Full Name
+                    </label>
+                    <input
+                            type="text"
+                            id="fullName"
+                            placeholder="John Doe"
+                            required
+                            autocomplete="name"
+                    >
+                    <span class="input-error" id="fullNameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupEmail">
+                        <span class="label-icon">📧</span>
+                        Email Address
+                    </label>
+                    <input
+                            type="email"
+                            id="signupEmail"
+                            placeholder="your@example.com"
+                            required
+                            autocomplete="email"
+                    >
+                    <span class="input-error" id="signupEmailError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPassword">
+                        <span class="label-icon">🔒</span>
+                        Password
+                    </label>
+                    <input
+                            type="password"
+                            id="signupPassword"
+                            placeholder="••••••••"
+                            required
+                            autocomplete="new-password"
+                    >
+                    <span class="input-error" id="signupPasswordError"></span>
+                    <small class="password-hint">Min 8 characters, 1 uppercase, 1 number</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">
+                        <span class="label-icon">🔒</span>
+                        Confirm Password
+                    </label>
+                    <input
+                            type="password"
+                            id="confirmPassword"
+                            placeholder="••••••••"
+                            required
+                            autocomplete="new-password"
+                    >
+                    <span class="input-error" id="confirmPasswordError"></span>
+                </div>
+
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="agreeTerms" required>
+                    <label for="agreeTerms">I agree to the Terms of Service and Privacy Policy</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-submit">
+                    <span>Create Account</span>
+                    <span class="spinner" style="display: none;"></span>
+                </button>
+            </form>
+
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+
+            <div class="auth-toggle">
+                <p>Already have an account? <a href="#" id="toggleToLogin" class="toggle-link">Sign In</a></p>
+            </div>
+        </div>
+
+        <!-- Features Panel -->
+        <div class="auth-features">
+            <h3>Why Join Deadline Analyzer?</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <div>
+                        <strong>100% Free</strong>
+                        <p>No hidden fees or premium plans</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🔐</span>
+                    <div>
+                        <strong>Your Data is Private</strong>
+                        <p>Your information is encrypted and secure</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">⚡</span>
+                    <div>
+                        <strong>Instant Insights</strong>
+                        <p>Get real-time analysis of your habits</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <div>
+                        <strong>Personalized Tips</strong>
+                        <p>Recommendations tailored to your style</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
