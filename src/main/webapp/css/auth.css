@@ -1,0 +1,58 @@
+body{
+    background:var(--light-gray);
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.auth-container{
+    width:100%;
+    display:flex;
+    justify-content:center;
+}
+
+.auth-card{
+    background:var(--white);
+    padding:40px;
+    border-radius:10px;
+    width:350px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.1);
+}
+
+.auth-card h2{
+    text-align:center;
+    margin-bottom:20px;
+    color:var(--midnight-teal);
+}
+
+label{
+    display:block;
+    margin-top:10px;
+    font-weight:600;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:1px solid var(--light-gray);
+    border-radius:5px;
+}
+
+.auth-card button{
+    margin-top:20px;
+    width:100%;
+}
+
+.auth-link{
+    margin-top:15px;
+    text-align:center;
+}
+
+.error-message{
+    color:var(--error-red);
+    font-size:14px;
+    margin-top:10px;
+    text-align:center;
+}
