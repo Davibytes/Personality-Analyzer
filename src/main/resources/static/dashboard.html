@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Deadline Analyzer</title>
+    <link rel="stylesheet" href="css/colors.css?v=2">
+    <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <div class="logo">
+            <span class="logo-text">Deadline Analyzer</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="tasks.html">Tasks</a></li>
+            <li><a href="#" id="logoutBtn">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<main>
+    <div class="container">
+        <h1>Your Dashboard</h1>
+
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="label">Average DUP</div>
+                <div class="value">---%</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="label">Completion Rate</div>
+                <div class="value">---%</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="label">Tasks Completed</div>
+                <div class="value">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="label">Late Submissions</div>
+                <div class="value">0</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Your Personality Type</h2>
+            <div class="personality-badge">Steady Planner</div>
+            <p style="margin-top: 1rem;">Great job! Maintain your consistent approach.</p>
+        </div>
+
+        <div class="card">
+            <h2>Recent Tasks</h2>
+            <p>No tasks yet. <a href="tasks.html">Create one now</a></p>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 Deadline Personality Analyzer. All rights reserved.</p>
+</footer>
+
+<script src="js/app.js"></script>
+<script>
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.clear();
+        window.location.href = 'index.html';
+    });
+</script>
+</body>
+</html>

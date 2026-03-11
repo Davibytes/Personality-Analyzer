@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks - Deadline Analyzer</title>
+    <link rel="stylesheet" href="css/colors.css?v=2">
+    <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <div class="logo">
+            <span class="logo-text">Deadline Analyzer</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="tasks.html">Tasks</a></li>
+            <li><a href="#" id="logoutBtn">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<main>
+    <div class="container">
+        <h1>My Tasks</h1>
+
+        <button class="btn btn-primary" onclick="alert('Backend coming soon!')">+ New Task</button>
+
+        <div class="task-list">
+            <p>No tasks yet. Create one to get started!</p>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 Deadline Personality Analyzer. All rights reserved.</p>
+</footer>
+
+<script src="js/app.js"></script>
+<script>
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.clear();
+        window.location.href = 'index.html';
+    });
+</script>
+</body>
+</html>
