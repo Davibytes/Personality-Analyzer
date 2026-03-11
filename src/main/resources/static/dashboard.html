@@ -65,12 +65,16 @@
 </footer>
 
 <script src="js/app.js"></script>
+<script src="js/auth-utils.js"></script>
 <script>
-    document.getElementById('logoutBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        localStorage.clear();
-        window.location.href = 'index.html';
-    });
+    // Protect this page - user must be logged in
+    initProtectedPage();
+
+    // Alternative: manual logout without redirect
+    // document.getElementById('logoutBtn').addEventListener('click', (e) => {
+    //     e.preventDefault();
+    //     logout('/login');
+    // });
 </script>
 </body>
 </html>

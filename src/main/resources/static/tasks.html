@@ -38,12 +38,11 @@
 </footer>
 
 <script src="js/app.js"></script>
+<script src="js/auth-utils.js"></script>
+<script src="js/tasks.js"></script>
 <script>
-    document.getElementById('logoutBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        localStorage.clear();
-        window.location.href = 'index.html';
-    });
+    // Protect this page - user must be logged in
+    initProtectedPage();
 </script>
 </body>
 </html>
