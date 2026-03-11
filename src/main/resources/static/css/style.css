@@ -1,5 +1,5 @@
 /* ============================================
-   GLOBAL STYLES
+   GLOBAL
    ============================================ */
 
 * {
@@ -13,65 +13,70 @@ html {
 }
 
 body {
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
-    background-color: var(--light-gray);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--white);
     color: var(--dark-gray);
     line-height: 1.6;
-    overflow-x: hidden;
 }
 
 /* ============================================
    TYPOGRAPHY
    ============================================ */
 
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.5px;
-}
-
 h1 {
-    font-size: 48px;
+    font-size: 40px;
+    font-weight: 700;
     color: var(--midnight-teal);
+    margin-bottom: 16px;
+    line-height: 1.2;
 }
 
 h2 {
-    font-size: 36px;
+    font-size: 32px;
+    font-weight: 700;
     color: var(--midnight-teal);
+    margin-bottom: 16px;
+    line-height: 1.2;
 }
 
 h3 {
-    font-size: 24px;
+    font-size: 22px;
+    font-weight: 600;
     color: var(--midnight-teal);
+    margin-bottom: 12px;
 }
 
 h4 {
-    font-size: 20px;
+    font-size: 18px;
+    font-weight: 600;
     color: var(--midnight-teal);
+    margin-bottom: 12px;
 }
 
 p {
-    color: var(--soft-seafoam);
     font-size: 15px;
+    color: var(--soft-seafoam);
     line-height: 1.8;
+    margin-bottom: 16px;
 }
 
 a {
     color: var(--ocean-teal);
     text-decoration: none;
-    transition: color var(--transition-fast);
+    font-weight: 500;
 }
 
 a:hover {
     color: var(--dusty-turquoise);
+    text-decoration: underline;
 }
 
 /* ============================================
-   CONTAINER & LAYOUT
+   CONTAINER
    ============================================ */
 
 .container {
-    max-width: 1280px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 24px;
 }
@@ -85,14 +90,13 @@ main {
    ============================================ */
 
 .navbar {
-    background: var(--white);
+    background-color: var(--white);
     border-bottom: 1px solid var(--border-gray);
     padding: 16px 0;
     position: sticky;
     top: 0;
     z-index: 1000;
     box-shadow: var(--shadow-sm);
-    transition: all var(--transition-base);
 }
 
 .navbar .container {
@@ -102,28 +106,10 @@ main {
 }
 
 .logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 24px;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--midnight-teal) 0%, var(--ocean-teal) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -1px;
-    transition: transform var(--transition-fast);
-}
-
-.logo:hover {
-    transform: scale(1.02);
-}
-
-.logo-icon {
-    font-size: 28px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--midnight-teal);
+    letter-spacing: -0.5px;
 }
 
 .nav-links {
@@ -135,29 +121,12 @@ main {
 
 .nav-links a {
     color: var(--dark-gray);
-    font-weight: 500;
     font-size: 14px;
-    position: relative;
-    transition: color var(--transition-fast);
-}
-
-.nav-links a::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--midnight-teal), var(--ocean-teal));
-    transition: width var(--transition-fast);
+    font-weight: 500;
 }
 
 .nav-links a:hover {
-    color: var(--midnight-teal);
-}
-
-.nav-links a:hover::after {
-    width: 100%;
+    color: var(--ocean-teal);
 }
 
 /* ============================================
@@ -170,62 +139,43 @@ main {
     justify-content: center;
     padding: 12px 24px;
     border: none;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: all var(--transition-fast);
     text-decoration: none;
     gap: 8px;
-    position: relative;
-    overflow: hidden;
+    transition: all 200ms ease;
 }
 
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    transition: left var(--transition-fast);
-    z-index: -1;
-}
-
-.btn:hover::before {
-    left: 100%;
+.btn:active {
+    transform: scale(0.98);
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--midnight-teal) 0%, var(--ocean-teal) 100%);
+    background-color: var(--midnight-teal);
     color: var(--white);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-.btn-primary:active {
-    transform: translateY(0);
+    background-color: var(--ocean-teal);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-secondary {
-    background: var(--white);
-    color: var(--ocean-teal);
-    border: 2px solid var(--ocean-teal);
+    background-color: var(--white);
+    color: var(--midnight-teal);
+    border: 2px solid var(--midnight-teal);
 }
 
 .btn-secondary:hover {
-    background: var(--pale-ice-blue);
-    transform: translateY(-2px);
+    background-color: var(--light-gray);
 }
 
 .btn-large {
-    padding: 16px 32px;
-    font-size: 16px;
+    padding: 14px 32px;
+    font-size: 15px;
 }
 
 .btn-small {
@@ -235,6 +185,13 @@ main {
 
 .btn-block {
     width: 100%;
+}
+
+.btn-primary-small {
+    padding: 8px 16px;
+    font-size: 13px;
+    background-color: var(--midnight-teal);
+    color: var(--white);
 }
 
 /* ============================================
@@ -252,43 +209,30 @@ main {
     color: var(--midnight-teal);
     margin-bottom: 8px;
     font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
 .form-group input,
 .form-group textarea {
-    padding: 12px 16px;
-    border: 2px solid var(--border-gray);
-    border-radius: 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-gray);
+    border-radius: 4px;
     font-size: 14px;
     font-family: inherit;
-    transition: all var(--transition-fast);
-    background: var(--white);
+    transition: all 200ms ease;
+    background-color: var(--white);
 }
 
 .form-group input::placeholder {
     color: var(--soft-seafoam);
-    opacity: 0.7;
+    opacity: 0.6;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: var(--ocean-teal);
-    box-shadow: 0 0 0 4px rgba(33, 94, 104, 0.08);
-    background: rgba(33, 94, 104, 0.02);
-}
-
-.form-group input:invalid:not(:focus):not(:placeholder-shown) {
-    border-color: var(--error-red);
-}
-
-.password-hint {
-    font-size: 12px;
-    color: var(--soft-seafoam);
-    margin-top: 6px;
+    background-color: rgba(33, 94, 104, 0.01);
+    box-shadow: inset 0 0 0 2px rgba(33, 94, 104, 0.1);
 }
 
 /* ============================================
@@ -296,18 +240,17 @@ main {
    ============================================ */
 
 .card {
-    background: var(--white);
-    border-radius: 12px;
+    background-color: var(--white);
+    border-radius: 4px;
     padding: 32px;
-    box-shadow: var(--shadow-md);
     border: 1px solid var(--border-gray);
-    transition: all var(--transition-base);
-    animation: slideUp 0.6s ease-out;
+    box-shadow: var(--shadow-sm);
+    transition: all 200ms ease;
+    margin-bottom: 24px;
 }
 
 .card:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .card h3 {
@@ -315,11 +258,23 @@ main {
 }
 
 /* ============================================
+   SECTIONS
+   ============================================ */
+
+section {
+    padding: 80px 0;
+}
+
+section:nth-child(even) {
+    background-color: var(--light-gray);
+}
+
+/* ============================================
    FOOTER
    ============================================ */
 
 footer {
-    background: var(--midnight-teal);
+    background-color: var(--midnight-teal);
     color: var(--white);
     text-align: center;
     padding: 32px 0;
@@ -328,73 +283,9 @@ footer {
 }
 
 footer p {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.9);
     font-size: 14px;
     margin: 0;
-}
-
-/* ============================================
-   ANIMATIONS
-   ============================================ */
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-}
-
-@keyframes glow {
-    0%, 100% {
-        box-shadow: var(--shadow-md);
-    }
-    50% {
-        box-shadow: 0 0 20px rgba(33, 94, 104, 0.3);
-    }
 }
 
 /* ============================================
@@ -403,7 +294,7 @@ footer p {
 
 @media (max-width: 768px) {
     h1 {
-        font-size: 32px;
+        font-size: 28px;
     }
 
     h2 {
@@ -420,5 +311,9 @@ footer p {
 
     .card {
         padding: 20px;
+    }
+
+    section {
+        padding: 40px 0;
     }
 }
