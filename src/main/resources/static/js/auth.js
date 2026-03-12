@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const authForm = document.getElementById('authForm');
     const signupForm = document.getElementById('signupForm');
 
-    // Toggle between login and signup modes
     if (toggleToSignup) {
         toggleToSignup.addEventListener('click', (e) => {
             e.preventDefault();
@@ -27,183 +26,128 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Handle login form submission
+    // Login Form
     if (authForm) {
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
 
-            // Validate inputs
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+
             if (!email || !password) {
-                showAlert('alertContainer', 'Please fill in all fields', 'error');
+                showAlert('Please fill in all fields', 'error', 'alertContainer');
                 return;
             }
 
-            // Show loading state
-            const submitBtn = authForm.querySelector('.btn-submit');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Signing in...';
-
             try {
-                // Make API request to backend
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
+                    body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
-                    // Store user data
+                    // Store user info (NO personality type yet)
                     localStorage.setItem('userId', data.userId);
-                    localStorage.setItem('userFullName', data.fullName);
-                    localStorage.setItem('userEmail', data.email);
-                    localStorage.setItem('authToken', 'bearer_' + data.userId);
-                    
-                    if (rememberMe) {
-                        localStorage.setItem('rememberEmail', email);
-                    }
+                    localStorage.setItem('email', data.email);
+                    localStorage.setItem('fullName', data.fullName);
 
-                    showAlert('alertContainer', 'Login successful! Redirecting...', 'success');
-                    
-                    // Redirect to dashboard after brief delay
+                    showAlert('Login successful! Redirecting...', 'success', 'alertContainer');
                     setTimeout(() => {
                         window.location.href = 'dashboard.html';
-                    }, 1000);
+                    }, 1500);
                 } else {
-                    showAlert('alertContainer', data.message || 'Login failed', 'error');
+                    showAlert(data.message || 'Login failed', 'error', 'alertContainer');
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                showAlert('alertContainer', 'An error occurred. Please try again.', 'error');
-            } finally {
-                // Reset button state
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+                console.error('Error:', error);
+                showAlert('Login failed: ' + error.message, 'error', 'alertContainer');
             }
         });
     }
 
-    // Handle signup form submission
+    // Signup Form
     if (signupForm) {
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('signupEmail').value.trim();
-            const password = document.getElementById('signupPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            const password = document.getElementById('signupPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
             const agreeTerms = document.getElementById('agreeTerms').checked;
 
-            // Validate inputs
+            // Validation
             if (!fullName || !email || !password || !confirmPassword) {
-                showAlert('alertContainer2', 'Please fill in all fields', 'error');
-                return;
-            }
-
-            if (!agreeTerms) {
-                showAlert('alertContainer2', 'Please agree to Terms of Service', 'error');
+                showAlert('Please fill in all fields', 'error', 'alertContainer2');
                 return;
             }
 
             if (password !== confirmPassword) {
-                showAlert('alertContainer2', 'Passwords do not match', 'error');
+                showAlert('Passwords do not match', 'error', 'alertContainer2');
                 return;
             }
 
             if (password.length < 6) {
-                showAlert('alertContainer2', 'Password must be at least 6 characters', 'error');
+                showAlert('Password must be at least 6 characters', 'error', 'alertContainer2');
                 return;
             }
 
-            // Show loading state
-            const submitBtn = signupForm.querySelector('.btn-submit');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Creating account...';
+            if (!agreeTerms) {
+                showAlert('Please agree to the terms', 'error', 'alertContainer2');
+                return;
+            }
 
             try {
-                // Make API request to backend
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        fullName: fullName,
-                        email: email,
-                        password: password,
-                        confirmPassword: confirmPassword
-                    })
+                    body: JSON.stringify({ fullName, email, password })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
-                    // Store user data
-                    localStorage.setItem('userId', data.userId);
-                    localStorage.setItem('userFullName', data.fullName);
-                    localStorage.setItem('userEmail', data.email);
-                    localStorage.setItem('authToken', 'bearer_' + data.userId);
-
-                    showAlert('alertContainer2', 'Registration successful! Redirecting...', 'success');
-                    
-                    // Redirect to dashboard after brief delay
+                    showAlert('Registration successful! Loading onboarding...', 'success', 'alertContainer2');
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1000);
+                        // Store user info (NO personality type yet)
+                        localStorage.setItem('userId', data.userId);
+                        localStorage.setItem('email', data.email);
+                        localStorage.setItem('fullName', data.fullName);
+                        localStorage.setItem('isNewUser', 'true');
+
+                        // Redirect to onboarding
+                        window.location.href = 'onboarding.html';
+                    }, 1500);
                 } else {
-                    showAlert('alertContainer2', data.message || 'Registration failed', 'error');
+                    showAlert(data.message || 'Registration failed', 'error', 'alertContainer2');
                 }
             } catch (error) {
-                console.error('Registration error:', error);
-                showAlert('alertContainer2', 'An error occurred. Please try again.', 'error');
-            } finally {
-                // Reset button state
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+                console.error('Error:', error);
+                showAlert('Registration failed: ' + error.message, 'error', 'alertContainer2');
             }
         });
     }
 });
 
-/**
- * Display alert message to user
- * @param {string} containerId - ID of alert container
- * @param {string} message - Alert message
- * @param {string} type - Alert type: 'success', 'error', 'warning'
- */
-function showAlert(containerId, message, type) {
-    const alertContainer = document.getElementById(containerId);
-    if (!alertContainer) return;
+function showAlert(message, type, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
 
-    const alertClass = type === 'success' ? 'alert-success' : 
-                       type === 'error' ? 'alert-danger' : 'alert-warning';
-    
-    const alertHTML = `
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+    container.innerHTML = `
+        <div class="alert alert-${type}">
             ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     `;
 
-    alertContainer.innerHTML = alertHTML;
-
-    // Auto-remove alert after 5 seconds
+    // Auto-remove after 5 seconds
     setTimeout(() => {
-        const alert = alertContainer.querySelector('.alert');
-        if (alert) {
-            alert.remove();
-        }
+        container.innerHTML = '';
     }, 5000);
 }

@@ -1,91 +1,123 @@
 package com.deadline.analyzer.controller;
 
-import com.deadline.analyzer.dto.AuthResponse;
-import com.deadline.analyzer.dto.LoginRequest;
-import com.deadline.analyzer.dto.RegisterRequest;
+import com.deadline.analyzer.model.User;
 import com.deadline.analyzer.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final UserService userService;
 
-    /**
-     * Register a new user
-     * POST /api/auth/register
-     * @param request RegisterRequest with fullName, email, password, confirmPassword
-     * @return AuthResponse with user details and success status
-     */
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        // Validate request
-        if (request.getFullName() == null || request.getFullName().trim().isEmpty()) {
-            AuthResponse response = new AuthResponse();
-            response.setSuccess(false);
-            response.setMessage("Full name is required");
-            return ResponseEntity.badRequest().body(response);
-        }
+    public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
 
-        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-            AuthResponse response = new AuthResponse();
-            response.setSuccess(false);
-            response.setMessage("Email is required");
-            return ResponseEntity.badRequest().body(response);
-        }
+        try {
+            String fullName = request.get("fullName");
+            String email = request.get("email");
+            String password = request.get("password");
 
-        if (request.getPassword() == null || request.getPassword().isEmpty()) {
-            AuthResponse response = new AuthResponse();
-            response.setSuccess(false);
-            response.setMessage("Password is required");
-            return ResponseEntity.badRequest().body(response);
-        }
+            // Validation
+            if (fullName == null || fullName.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Full name is required");
+                return ResponseEntity.badRequest().body(response);
+            }
 
-        AuthResponse response = userService.registerUser(request);
+            if (email == null || email.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Email is required");
+                return ResponseEntity.badRequest().body(response);
+            }
 
-        if (response.isSuccess()) {
+            if (password == null || password.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Password is required");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            if (password.length() < 6) {
+                response.put("success", false);
+                response.put("message", "Password must be at least 6 characters");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // Register user
+            User newUser = userService.registerUser(fullName, email, password);
+
+            response.put("success", true);
+            response.put("message", "Registration successful");
+            response.put("userId", newUser.getId());
+            response.put("email", newUser.getEmail());
+            response.put("fullName", newUser.getFullName());
+
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } else {
+
+        } catch (RuntimeException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Registration failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
-    /**
-     * Login user
-     * POST /api/auth/login
-     * @param request LoginRequest with email and password
-     * @return AuthResponse with user details and success status
-     */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        // Validate request
-        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-            AuthResponse response = new AuthResponse();
-            response.setSuccess(false);
-            response.setMessage("Email is required");
-            return ResponseEntity.badRequest().body(response);
-        }
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
 
-        if (request.getPassword() == null || request.getPassword().isEmpty()) {
-            AuthResponse response = new AuthResponse();
-            response.setSuccess(false);
-            response.setMessage("Password is required");
-            return ResponseEntity.badRequest().body(response);
-        }
+        try {
+            String email = request.get("email");
+            String password = request.get("password");
 
-        AuthResponse response = userService.loginUser(request);
+            // Validation
+            if (email == null || email.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Email is required");
+                return ResponseEntity.badRequest().body(response);
+            }
 
-        if (response.isSuccess()) {
+            if (password == null || password.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Password is required");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // Login user
+            Optional<User> user = userService.loginUser(email, password);
+
+            if (user.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Invalid email or password");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            response.put("success", true);
+            response.put("message", "Login successful");
+            response.put("userId", user.get().getId());
+            response.put("email", user.get().getEmail());
+            response.put("fullName", user.get().getFullName());
+            response.put("personalityType", user.get().getPersonalityType());
+
             return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Login failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }
-

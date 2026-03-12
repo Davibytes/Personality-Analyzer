@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +25,8 @@ public class TaskService {
         return taskRepository.findByUserId(userId);
     }
 
-    public Task getTaskById(String id) {
-        return taskRepository.findById(id).orElse(null);
+    public Optional<Task> getTaskById(String id) {
+        return taskRepository.findById(id);
     }
 
     public Task updateTask(Task task) {
@@ -37,17 +38,16 @@ public class TaskService {
     }
 
     public Task completeTask(String id) {
-        Task task = taskRepository.findById(id).orElse(null);
-        if (task != null) {
+        Optional<Task> optionalTask = taskRepository.findById(id);
+        if (optionalTask.isPresent()) {
+            Task task = optionalTask.get();
             task.setCompletedAt(System.currentTimeMillis());
             task.setIsCompleted(true);
 
-            // Calculate if late
             if (task.getCompletedAt() > task.getDeadline()) {
                 task.setIsLate(true);
             }
 
-            // Calculate DUP
             long timeAvailable = task.getDeadline() - task.getCreatedAt();
             long timeWaited = task.getStartedAt() - task.getCreatedAt();
             double dup = (timeWaited / (double) timeAvailable) * 100;

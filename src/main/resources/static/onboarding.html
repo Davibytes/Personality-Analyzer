@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Deadline Analyzer</title>
+    <link rel="stylesheet" href="css/colors.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .onboarding-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--light-gray) 0%, var(--white) 100%);
+        }
+
+        .onboarding-content {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .onboarding-icon {
+            width: 100px;
+            height: 100px;
+            background-color: var(--pale-ice-blue);
+            border-radius: 50%;
+            margin: 0 auto 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            border: 4px solid var(--ocean-teal);
+        }
+
+        .onboarding-content h1 {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .onboarding-content p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 24px;
+            color: var(--soft-seafoam);
+        }
+
+        .onboarding-steps {
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background-color: var(--midnight-teal);
+            color: var(--white);
+            border-radius: 50%;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: 16px;
+            margin: 0 0 4px 0;
+            color: var(--midnight-teal);
+        }
+
+        .step-content p {
+            font-size: 14px;
+            margin: 0;
+            color: var(--soft-seafoam);
+        }
+
+        .onboarding-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .onboarding-buttons .btn {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .onboarding-content {
+                padding: 40px 24px;
+            }
+
+            .onboarding-content h1 {
+                font-size: 24px;
+            }
+
+            .onboarding-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <div class="logo">Deadline Analyzer</div>
+    </div>
+</nav>
+
+<div class="onboarding-container">
+    <div class="onboarding-content">
+        <div class="onboarding-icon">
+            •
+        </div>
+
+        <h1>Welcome to Deadline Analyzer</h1>
+        <p>Your journey to better deadline management starts now. Let's get you set up!</p>
+
+        <div class="onboarding-steps">
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Create Your First Task</h3>
+                    <p>Add an academic task with a deadline to track</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>System Analyzes</h3>
+                    <p>Our system will analyze how long you take to complete tasks</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Get Personality Type</h3>
+                    <p>We'll determine your deadline personality and style</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Receive Recommendations</h3>
+                    <p>Get personalized advice on how to improve and be productive</p>
+                </div>
+            </div>
+        </div>
+
+        <p style="font-size: 14px; font-weight: 600; color: var(--midnight-teal); margin-bottom: 32px;">
+            The more tasks you track, the better we understand your deadline management style.
+        </p>
+
+        <div class="onboarding-buttons">
+            <a href="dashboard.html" class="btn btn-secondary">View Dashboard</a>
+            <a href="tasks.html" class="btn btn-primary">Create First Task</a>
+        </div>
+    </div>
+</div>
+
+<footer style="margin-top: 60px;">
+    <p>&copy; 2026 Deadline Personality Analyzer. All rights reserved.</p>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const isNewUser = localStorage.getItem('isNewUser');
+        const userId = localStorage.getItem('userId');
+
+        // If not a new user or not logged in, redirect to dashboard
+        if (!isNewUser || !userId) {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Clear the newUser flag after showing onboarding once
+        // This ensures it only shows once per registration
+    });
+</script>
+</body>
+</html>
