@@ -2,6 +2,7 @@ package com.deadline.analyzer.controller;
 
 import com.deadline.analyzer.model.User;
 import com.deadline.analyzer.service.UserService;
+import com.deadline.analyzer.service.RecaptchaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.Optional;
 public class AuthController {
 
     private final UserService userService;
+    private final RecaptchaService recaptchaService;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request) {
@@ -27,6 +29,20 @@ public class AuthController {
             String fullName = request.get("fullName");
             String email = request.get("email");
             String password = request.get("password");
+            String recaptchaToken = request.get("recaptchaToken");
+
+            // Verify reCAPTCHA first
+            if (recaptchaToken == null || recaptchaToken.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "reCAPTCHA token is missing");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            if (!recaptchaService.verifyRecaptcha(recaptchaToken)) {
+                response.put("success", false);
+                response.put("message", "reCAPTCHA verification failed. Please try again.");
+                return ResponseEntity.badRequest().body(response);
+            }
 
             // Validation
             if (fullName == null || fullName.trim().isEmpty()) {
@@ -82,6 +98,20 @@ public class AuthController {
         try {
             String email = request.get("email");
             String password = request.get("password");
+            String recaptchaToken = request.get("recaptchaToken");
+
+            // Verify reCAPTCHA first
+            if (recaptchaToken == null || recaptchaToken.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "reCAPTCHA token is missing");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            if (!recaptchaService.verifyRecaptcha(recaptchaToken)) {
+                response.put("success", false);
+                response.put("message", "reCAPTCHA verification failed. Please try again.");
+                return ResponseEntity.badRequest().body(response);
+            }
 
             // Validation
             if (email == null || email.trim().isEmpty()) {
@@ -110,7 +140,6 @@ public class AuthController {
             response.put("userId", user.get().getId());
             response.put("email", user.get().getEmail());
             response.put("fullName", user.get().getFullName());
-            response.put("personalityType", user.get().getPersonalityType());
 
             return ResponseEntity.ok(response);
 

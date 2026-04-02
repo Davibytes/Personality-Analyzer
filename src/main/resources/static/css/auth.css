@@ -300,3 +300,18 @@
         gap: 16px;
     }
 }
+
+/* ============================================
+   RECAPTCHA STYLES
+   ============================================ */
+
+.recaptcha-container {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.g-recaptcha {
+    transform: scale(0.9);
+    transform-origin: 0 0;
+}

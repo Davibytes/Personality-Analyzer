@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="css/colors.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
+    <!-- RECAPTCHA SCRIPT -->
+    <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
 <body class="auth-body">
 <!-- Navigation -->
@@ -61,6 +63,11 @@
 
                 <div style="text-align: right; margin-bottom: 16px;">
                     <a href="forgot-password.html" style="font-size: 13px; color: var(--ocean-teal);">Forgot password?</a>
+                </div>
+
+                <!-- RECAPTCHA -->
+                <div class="recaptcha-container">
+                    <div class="g-recaptcha" data-sitekey="6Ld0QZksAAAAAM8c5aPEKo_tLY7i67TNOH-qK4l5"></div>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block btn-submit">Sign In</button>
@@ -132,6 +139,11 @@
                 <div class="form-group checkbox">
                     <input type="checkbox" id="agreeTerms" required>
                     <label for="agreeTerms">I agree to Terms of Service</label>
+                </div>
+
+                <!-- RECAPTCHA -->
+                <div class="recaptcha-container">
+                    <div class="g-recaptcha" data-sitekey="6Ld0QZksAAAAAM8c5aPEKo_tLY7i67TNOH-qK4l5"></div>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block btn-submit">Create Account</button>

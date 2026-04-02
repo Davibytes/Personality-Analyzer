@@ -14,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
             isLoginMode = false;
             loginBox.style.display = 'none';
             signupBox.style.display = 'block';
+            // Reset reCAPTCHA when switching forms
+            if (typeof grecaptcha !== 'undefined') {
+                grecaptcha.reset();
+            }
         });
     }
 
@@ -23,6 +27,10 @@ document.addEventListener('DOMContentLoaded', () => {
             isLoginMode = true;
             loginBox.style.display = 'block';
             signupBox.style.display = 'none';
+            // Reset reCAPTCHA when switching forms
+            if (typeof grecaptcha !== 'undefined') {
+                grecaptcha.reset();
+            }
         });
     }
 
@@ -33,6 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
+
+            // Get reCAPTCHA token
+            const recaptchaToken = grecaptcha.getResponse();
+
+            // Check if reCAPTCHA is completed
+            if (!recaptchaToken) {
+                showAlert('Please complete the reCAPTCHA verification', 'error', 'alertContainer');
+                return;
+            }
 
             if (!email || !password) {
                 showAlert('Please fill in all fields', 'error', 'alertContainer');
@@ -45,7 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        recaptchaToken
+                    })
                 });
 
                 const data = await response.json();
@@ -62,10 +83,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 1500);
                 } else {
                     showAlert(data.message || 'Login failed', 'error', 'alertContainer');
+                    // Reset reCAPTCHA on failed attempt
+                    grecaptcha.reset();
                 }
             } catch (error) {
                 console.error('Error:', error);
                 showAlert('Login failed: ' + error.message, 'error', 'alertContainer');
+                grecaptcha.reset();
             }
         });
     }
@@ -80,6 +104,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('signupPassword').value.trim();
             const confirmPassword = document.getElementById('confirmPassword').value.trim();
             const agreeTerms = document.getElementById('agreeTerms').checked;
+
+            // Get reCAPTCHA token
+            const recaptchaToken = grecaptcha.getResponse();
+
+            // Check if reCAPTCHA is completed
+            if (!recaptchaToken) {
+                showAlert('Please complete the reCAPTCHA verification', 'error', 'alertContainer2');
+                return;
+            }
 
             // Validation
             if (!fullName || !email || !password || !confirmPassword) {
@@ -108,7 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ fullName, email, password })
+                    body: JSON.stringify({
+                        fullName,
+                        email,
+                        password,
+                        recaptchaToken
+                    })
                 });
 
                 const data = await response.json();
@@ -127,10 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 1500);
                 } else {
                     showAlert(data.message || 'Registration failed', 'error', 'alertContainer2');
+                    // Reset reCAPTCHA on failed attempt
+                    grecaptcha.reset();
                 }
             } catch (error) {
                 console.error('Error:', error);
                 showAlert('Registration failed: ' + error.message, 'error', 'alertContainer2');
+                grecaptcha.reset();
             }
         });
     }
