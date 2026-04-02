@@ -1,13 +1,18 @@
 package com.deadline.analyzer.controller;
 
+import com.deadline.analyzer.aspect.TrackPerformance;
+import com.deadline.analyzer.dto.PerformanceData;
 import com.deadline.analyzer.model.User;
+import com.deadline.analyzer.service.ActivityLogService;
 import com.deadline.analyzer.service.UserService;
 import com.deadline.analyzer.service.RecaptchaService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -16,13 +21,16 @@ import java.util.Optional;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+@Slf4j
 public class AuthController {
 
     private final UserService userService;
     private final RecaptchaService recaptchaService;
+    private final ActivityLogService activityLogService;
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request) {
+    @TrackPerformance(action = "User Registration")
+    public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request, HttpServletRequest httpRequest) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -92,7 +100,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> request) {
+    @TrackPerformance(action = "User Login")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> request, HttpServletRequest httpRequest) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -146,6 +155,29 @@ public class AuthController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Login failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
+     * Endpoint to receive performance data from frontend
+     */
+    @PostMapping("/performance")
+    public ResponseEntity<Map<String, Object>> logPerformance(@RequestBody PerformanceData performanceData, HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // Log performance data with enhanced tracking
+            activityLogService.logPerformanceData(performanceData, request);
+            
+            response.put("success", true);
+            response.put("message", "Performance data logged successfully");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to log performance data: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
