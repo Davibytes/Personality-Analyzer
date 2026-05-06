@@ -1,145 +1,145 @@
 package com.deadline.analyzer.service;
 
-import com.deadline.analyzer.dto.PerformanceData;
 import com.deadline.analyzer.model.ActivityLog;
 import com.deadline.analyzer.repository.ActivityLogRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ActivityLogService {
 
     private final ActivityLogRepository activityLogRepository;
 
     /**
-     * Enhanced activity logging with start/end times
+     * Log a user action with all details
      */
-    public void logActivity(String userEmail, String action, String details, 
-                           Long inputTimeMs, Long processingTimeMs,
-                           Long startTime, Long endTime,
-                           HttpServletRequest request) {
-        
-        long currentTime = System.currentTimeMillis();
-        String readableTimestamp = java.time.Instant.ofEpochMilli(currentTime)
-            .atZone(java.time.ZoneId.systemDefault())
-            .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        
-        // Create log entry
-        ActivityLog activityLog = new ActivityLog();
-        activityLog.setUserEmail(userEmail);
-        activityLog.setAction(action);
-        activityLog.setDetails(details);
-        activityLog.setInputTimeMs(inputTimeMs);
-        activityLog.setProcessingTimeMs(processingTimeMs);
-        activityLog.setStartTime(startTime);
-        activityLog.setEndTime(endTime);
-        activityLog.setTimestamp(currentTime);
-        
+    public ActivityLog logActivity(String userId, String email, String actionType,
+                                   Long formStartTime, Long formEndTime,
+                                   Long dbSaveStartTime, Long dbSaveEndTime,
+                                   HttpServletRequest request) {
+
+        ActivityLog log = new ActivityLog();
+        log.setUserId(userId);
+        log.setEmail(email);
+        log.setActionType(actionType);
+        log.setTimestamp(System.currentTimeMillis());
+
+        // Form timing
+        if (formStartTime != null && formEndTime != null) {
+            long totalFormTime = formEndTime - formStartTime;
+            log.setFormStartTime(formStartTime);
+            log.setFormEndTime(formEndTime);
+            log.setTotalFormTime(totalFormTime);
+        }
+
+        // Database save timing
+        if (dbSaveStartTime != null && dbSaveEndTime != null) {
+            long dbSaveTime = dbSaveEndTime - dbSaveStartTime;
+            log.setDatabaseSaveTime(dbSaveTime);
+        }
+
+        // Set action description
+        switch (actionType) {
+            case "REGISTER":
+                log.setAction("User registered new account");
+                break;
+            case "LOGIN":
+                log.setAction("User logged in");
+                break;
+            case "CREATE_TASK":
+                log.setAction("User created a task");
+                break;
+            case "COMPLETE_TASK":
+                log.setAction("User completed a task");
+                break;
+            case "UPDATE_PROFILE":
+                log.setAction("User updated profile");
+                break;
+            default:
+                log.setAction("User performed action: " + actionType);
+        }
+
+        // Get IP and User Agent
         if (request != null) {
-            activityLog.setUserAgent(request.getHeader("User-Agent"));
-            activityLog.setIpAddress(getClientIpAddress(request));
+            log.setIpAddress(getClientIp(request));
+            log.setUserAgent(request.getHeader("User-Agent"));
         }
 
-        // Enhanced console logging with readable timestamp
-        String logMessage = String.format(
-            "[%s] USER: %s | ACTION: %s | DETAILS: %s | START: %s | END: %s | DURATION: %dms | PROCESSING: %dms | IP: %s",
-            readableTimestamp,
-            activityLog.getUserEmail(),
-            activityLog.getAction(),
-            activityLog.getDetails(),
-            formatTimestamp(startTime),
-            formatTimestamp(endTime),
-            inputTimeMs,
-            activityLog.getProcessingTimeMs(),
-            activityLog.getIpAddress()
-        );
-        
-        log.info("ACTIVITY_LOG: {}", logMessage);
+        log.setStatus("SUCCESS");
+        log.setAttemptNumber(1);
 
-        // Save to database
-        try {
-            activityLogRepository.save(activityLog);
-        } catch (Exception e) {
-            log.error("Failed to save activity log to database: {}", e.getMessage());
+        return activityLogRepository.save(log);
+    }
+
+    /**
+     * Log failed action
+     */
+    public ActivityLog logFailedActivity(String email, String actionType,
+                                         String errorMessage, HttpServletRequest request) {
+
+        ActivityLog log = new ActivityLog();
+        log.setEmail(email);
+        log.setActionType(actionType);
+        log.setTimestamp(System.currentTimeMillis());
+        log.setStatus("FAILED");
+        log.setErrorMessage(errorMessage);
+        log.setAction("Failed attempt: " + actionType);
+
+        if (request != null) {
+            log.setIpAddress(getClientIp(request));
+            log.setUserAgent(request.getHeader("User-Agent"));
         }
+
+        return activityLogRepository.save(log);
     }
 
     /**
-     * Format timestamp for logging
+     * Get all logs for a specific user
      */
-    private String formatTimestamp(Long timestamp) {
-        if (timestamp == null) return "N/A";
-        return java.time.Instant.ofEpochMilli(timestamp)
-            .atZone(java.time.ZoneId.systemDefault())
-            .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    public List<ActivityLog> getUserActivityLogs(String userId) {
+        return activityLogRepository.findByUserId(userId);
     }
 
     /**
-     * Simple activity logging (no performance tracking)
+     * Get all logs for a specific email
      */
-    public void logActivity(String userEmail, String action, String details) {
-        logActivity(userEmail, action, details, null, null, null, null, null);
+    public List<ActivityLog> getEmailActivityLogs(String email) {
+        return activityLogRepository.findByEmail(email);
     }
 
     /**
-     * Log performance data with start/end times
+     * Get all logs of a specific action type
      */
-    public void logPerformanceData(PerformanceData performanceData, HttpServletRequest request) {
-        logActivity(
-            performanceData.getUserEmail(),
-            performanceData.getAction(),
-            performanceData.getDetails(),
-            performanceData.getInputTimeMs(),
-            null, // processing time will be tracked by aspect
-            performanceData.getStartTime(),
-            performanceData.getEndTime(),
-            request
-        );
+    public List<ActivityLog> getActivityLogsByType(String actionType) {
+        return activityLogRepository.findByActionType(actionType);
     }
 
     /**
-     * Log to file using SLF4J
+     * Get all failed login/register attempts
      */
-    private void logToFile(ActivityLog activityLog) {
-        String logMessage = String.format(
-            "USER: %s | ACTION: %s | DETAILS: %s | INPUT_TIME: %dms | PROCESSING_TIME: %dms | IP: %s | TIMESTAMP: %d",
-            activityLog.getUserEmail(),
-            activityLog.getAction(),
-            activityLog.getDetails(),
-            activityLog.getInputTimeMs(),
-            activityLog.getProcessingTimeMs(),
-            activityLog.getIpAddress(),
-            activityLog.getTimestamp()
-        );
-
-        if (activityLog.getInputTimeMs() != null && activityLog.getProcessingTimeMs() != null) {
-            log.info("PERFORMANCE_LOG: {}", logMessage);
-        } else {
-            log.info("ACTIVITY_LOG: {}", logMessage);
-        }
+    public List<ActivityLog> getFailedAttempts() {
+        return activityLogRepository.findByStatus("FAILED");
     }
 
     /**
-     * Get client IP address from request
+     * Get logs within a time range (useful for analytics)
      */
-    private String getClientIpAddress(HttpServletRequest request) {
+    public List<ActivityLog> getActivityLogsByTimeRange(Long startTime, Long endTime) {
+        return activityLogRepository.findByTimestampBetween(startTime, endTime);
+    }
+
+    /**
+     * Get client IP address
+     */
+    private String getClientIp(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            return xForwardedFor.split(",")[0].trim();
+        if (xForwardedFor == null || xForwardedFor.isEmpty()) {
+            return request.getRemoteAddr();
         }
-        
-        String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.isEmpty()) {
-            return xRealIp;
-        }
-        
-        return request.getRemoteAddr();
+        return xForwardedFor.split(",")[0];
     }
 }

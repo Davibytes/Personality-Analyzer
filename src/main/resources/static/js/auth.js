@@ -1,4 +1,5 @@
 let isLoginMode = true;
+let formStartTime = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const toggleToSignup = document.getElementById('toggleToSignup');
@@ -7,6 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const signupBox = document.getElementById('signupBox');
     const authForm = document.getElementById('authForm');
     const signupForm = document.getElementById('signupForm');
+    const fullNameInput = document.getElementById('fullName');
+
+    // Track when user starts filling the form
+    const trackFormStart = (input) => {
+        if (input && !formStartTime) {
+            formStartTime = Date.now();
+        }
+    };
+
+    if (fullNameInput) {
+        fullNameInput.addEventListener('focus', () => trackFormStart(fullNameInput));
+    }
 
     if (toggleToSignup) {
         toggleToSignup.addEventListener('click', (e) => {
@@ -14,10 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isLoginMode = false;
             loginBox.style.display = 'none';
             signupBox.style.display = 'block';
-            // Reset reCAPTCHA when switching forms
-            if (typeof grecaptcha !== 'undefined') {
-                grecaptcha.reset();
-            }
+            formStartTime = null;
         });
     }
 
@@ -27,11 +37,22 @@ document.addEventListener('DOMContentLoaded', () => {
             isLoginMode = true;
             loginBox.style.display = 'block';
             signupBox.style.display = 'none';
-            // Reset reCAPTCHA when switching forms
-            if (typeof grecaptcha !== 'undefined') {
-                grecaptcha.reset();
-            }
+            formStartTime = null;
         });
+    }
+
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const signupEmailInput = document.getElementById('signupEmail');
+
+    if (emailInput) {
+        emailInput.addEventListener('focus', () => trackFormStart(emailInput));
+    }
+    if (passwordInput) {
+        passwordInput.addEventListener('focus', () => trackFormStart(passwordInput));
+    }
+    if (signupEmailInput) {
+        signupEmailInput.addEventListener('focus', () => trackFormStart(signupEmailInput));
     }
 
     // Login Form
@@ -41,15 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
-
-            // Get reCAPTCHA token
-            const recaptchaToken = grecaptcha.getResponse();
-
-            // Check if reCAPTCHA is completed
-            if (!recaptchaToken) {
-                showAlert('Please complete the reCAPTCHA verification', 'error', 'alertContainer');
-                return;
-            }
+            const formEndTime = Date.now();
 
             if (!email || !password) {
                 showAlert('Please fill in all fields', 'error', 'alertContainer');
@@ -65,14 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({
                         email,
                         password,
-                        recaptchaToken
+                        formStartTime: formStartTime || Date.now(),
+                        formEndTime: formEndTime
                     })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
-                    // Store user info (NO personality type yet)
                     localStorage.setItem('userId', data.userId);
                     localStorage.setItem('email', data.email);
                     localStorage.setItem('fullName', data.fullName);
@@ -83,13 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 1500);
                 } else {
                     showAlert(data.message || 'Login failed', 'error', 'alertContainer');
-                    // Reset reCAPTCHA on failed attempt
-                    grecaptcha.reset();
                 }
             } catch (error) {
                 console.error('Error:', error);
                 showAlert('Login failed: ' + error.message, 'error', 'alertContainer');
-                grecaptcha.reset();
             }
         });
     }
@@ -104,17 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('signupPassword').value.trim();
             const confirmPassword = document.getElementById('confirmPassword').value.trim();
             const agreeTerms = document.getElementById('agreeTerms').checked;
+            const formEndTime = Date.now();
 
-            // Get reCAPTCHA token
-            const recaptchaToken = grecaptcha.getResponse();
-
-            // Check if reCAPTCHA is completed
-            if (!recaptchaToken) {
-                showAlert('Please complete the reCAPTCHA verification', 'error', 'alertContainer2');
-                return;
-            }
-
-            // Validation
             if (!fullName || !email || !password || !confirmPassword) {
                 showAlert('Please fill in all fields', 'error', 'alertContainer2');
                 return;
@@ -145,7 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         fullName,
                         email,
                         password,
-                        recaptchaToken
+                        formStartTime: formStartTime || Date.now(),
+                        formEndTime: formEndTime
                     })
                 });
 
@@ -154,24 +156,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showAlert('Registration successful! Loading onboarding...', 'success', 'alertContainer2');
                     setTimeout(() => {
-                        // Store user info (NO personality type yet)
                         localStorage.setItem('userId', data.userId);
                         localStorage.setItem('email', data.email);
                         localStorage.setItem('fullName', data.fullName);
                         localStorage.setItem('isNewUser', 'true');
-
-                        // Redirect to onboarding
                         window.location.href = 'onboarding.html';
                     }, 1500);
                 } else {
                     showAlert(data.message || 'Registration failed', 'error', 'alertContainer2');
-                    // Reset reCAPTCHA on failed attempt
-                    grecaptcha.reset();
                 }
             } catch (error) {
                 console.error('Error:', error);
                 showAlert('Registration failed: ' + error.message, 'error', 'alertContainer2');
-                grecaptcha.reset();
             }
         });
     }
@@ -187,7 +183,6 @@ function showAlert(message, type, containerId) {
         </div>
     `;
 
-    // Auto-remove after 5 seconds
     setTimeout(() => {
         container.innerHTML = '';
     }, 5000);

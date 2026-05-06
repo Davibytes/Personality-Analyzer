@@ -6,6 +6,45 @@
     <title>Profile - Deadline Analyzer</title>
     <link rel="stylesheet" href="css/colors.css">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); }
+            10% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
+
+        .rotating-text {
+            animation: fadeInOut 8s infinite;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--dark-gray);
+        }
+
+        .personality-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .personality-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-gray);
+            font-size: 14px;
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .personality-list li:last-child {
+            border-bottom: none;
+        }
+
+        .personality-list strong {
+            color: var(--midnight-teal);
+        }
+    </style>
 </head>
 <body>
 <nav class="navbar">
@@ -13,7 +52,7 @@
         <div class="logo">Deadline Analyzer</div>
         <ul class="nav-links">
             <li><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="profile.html">Profile</a></li>
+            <li><a href="profile.html" style="color: var(--ocean-teal); font-weight: 700;">Profile</a></li>
             <li><a href="tasks.html">Tasks</a></li>
             <li><a href="#" id="logoutBtn">Logout</a></li>
         </ul>
@@ -24,7 +63,7 @@
     <div class="container">
         <div class="welcome-section">
             <h1>Your Profile</h1>
-            <p class="welcome-subtitle">Manage your account information</p>
+            <p class="welcome-subtitle">View your complete analytics and personalized insights</p>
         </div>
 
         <div class="cards-row">
@@ -47,25 +86,64 @@
             <div class="card">
                 <h2>Personality Profile</h2>
                 <div class="profile-item">
-                    <label>Personality Type</label>
-                    <p id="profilePersonality">Not yet determined</p>
+                    <label>Your Personality Type</label>
+                    <p id="personalityType" style="font-size: 16px; font-weight: 700; color: var(--ocean-teal);">Not yet determined</p>
                 </div>
                 <div class="profile-item">
                     <label>Average DUP Score</label>
-                    <p id="profileDup">-</p>
+                    <p id="averageDup">-</p>
                 </div>
                 <div class="profile-item">
-                    <label>Task Completion Rate</label>
-                    <p id="profileCompletion">-</p>
+                    <label>Completion Rate</label>
+                    <p id="completionRate">-</p>
                 </div>
+            </div>
+        </div>
+
+        <div id="recommendationSection" style="display: none;" class="card">
+            <h2>Personalized Recommendations</h2>
+            <p style="color: var(--soft-seafoam); font-size: 13px; margin-bottom: 20px;">Recommendations rotate every 8 seconds</p>
+            <div class="rotating-text" id="recommendation"></div>
+        </div>
+
+        <div class="cards-row">
+            <div class="card">
+                <h2>Performance Overview</h2>
+                <div class="profile-item">
+                    <label>Total Tasks</label>
+                    <p id="totalTasks">0</p>
+                </div>
+                <div class="profile-item">
+                    <label>Completed Tasks</label>
+                    <p id="completedTasks">0</p>
+                </div>
+                <div class="profile-item">
+                    <label>On-Time Submissions</label>
+                    <p id="onTimeSubmissions">0</p>
+                </div>
+                <div class="profile-item">
+                    <label>Late Submissions</label>
+                    <p id="lateSubmissions">0</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Personality Types Guide</h2>
+                <ul class="personality-list">
+                    <li><strong>Last-Minute Sprinter:</strong> Thrives under pressure, delivers quality</li>
+                    <li><strong>Panic Starter:</strong> Waits too long, causes quality issues</li>
+                    <li><strong>Perfectionist Delayer:</strong> Starts early but over-edits</li>
+                    <li><strong>Chronic Postponer:</strong> Frequently misses deadlines</li>
+                    <li><strong>Steady Planner:</strong> Balanced and consistent approach</li>
+                </ul>
             </div>
         </div>
 
         <div class="card">
             <h2>Account Actions</h2>
             <div class="action-buttons">
-                <button id="changePasswordBtn" class="btn btn-secondary">Change Password</button>
-                <button id="deleteAccountBtn" class="btn btn-secondary" style="background-color: #E57373; color: white; border: none;">Delete Account</button>
+                <a href="tasks.html" class="btn btn-primary">View Tasks</a>
+                <button id="logoutBtn2" class="btn btn-secondary">Logout</button>
             </div>
         </div>
     </div>
@@ -76,44 +154,99 @@
 </footer>
 
 <script>
+    let recommendationIndex = 0;
+    let recommendations = [];
+
     document.addEventListener('DOMContentLoaded', () => {
         const userId = localStorage.getItem('userId');
         const fullName = localStorage.getItem('fullName');
         const email = localStorage.getItem('email');
-        const personalityType = localStorage.getItem('personalityType');
 
         if (!userId) {
             window.location.href = 'login.html';
             return;
         }
 
-        // Display profile info
         document.getElementById('profileName').textContent = fullName || '-';
         document.getElementById('profileEmail').textContent = email || '-';
-        document.getElementById('profilePersonality').textContent = personalityType || 'Not yet determined';
         document.getElementById('memberSince').textContent = new Date().toLocaleDateString();
-        document.getElementById('profileDup').textContent = '-';
-        document.getElementById('profileCompletion').textContent = '-';
 
-        // Logout
+        loadProfileStats(userId);
+
         document.getElementById('logoutBtn').addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.clear();
             window.location.href = 'index.html';
         });
 
-        // Change password
-        document.getElementById('changePasswordBtn').addEventListener('click', () => {
-            alert('Password change feature coming soon');
-        });
-
-        // Delete account
-        document.getElementById('deleteAccountBtn').addEventListener('click', () => {
-            if (confirm('Are you sure you want to delete your account? This cannot be undone.')) {
-                alert('Account deletion feature coming soon');
-            }
+        document.getElementById('logoutBtn2').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = 'index.html';
         });
     });
+
+    function loadProfileStats(userId) {
+        fetch(`/api/users/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.user) {
+                    const user = data.user;
+                    document.getElementById('personalityType').textContent = user.personalityType || 'Not yet determined';
+                    document.getElementById('averageDup').textContent =
+                        user.averageDup ? user.averageDup.toFixed(1) + '%' : '-';
+                    document.getElementById('completionRate').textContent =
+                        user.completionRate ? user.completionRate + '%' : '-';
+
+                    if (user.personalityType) {
+                        loadRecommendations(user.personalityType);
+                    }
+                }
+            })
+            .catch(error => console.error('Error loading user data:', error));
+
+        fetch(`/api/tasks/user/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.tasks) {
+                    const tasks = data.tasks;
+                    const completedTasks = tasks.filter(t => t.isCompleted);
+                    const onTimeTasks = completedTasks.filter(t => !t.isLate);
+                    const lateTasks = completedTasks.filter(t => t.isLate);
+
+                    document.getElementById('totalTasks').textContent = tasks.length;
+                    document.getElementById('completedTasks').textContent = completedTasks.length;
+                    document.getElementById('onTimeSubmissions').textContent = onTimeTasks.length;
+                    document.getElementById('lateSubmissions').textContent = lateTasks.length;
+                }
+            })
+            .catch(error => console.error('Error loading tasks:', error));
+    }
+
+    function loadRecommendations(personalityType) {
+        fetch(`/api/recommendations/${personalityType}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.recommendations) {
+                    recommendations = data.recommendations;
+                    recommendationIndex = 0;
+                    document.getElementById('recommendationSection').style.display = 'block';
+                    rotateRecommendations();
+                }
+            })
+            .catch(error => console.error('Error loading recommendations:', error));
+    }
+
+    function rotateRecommendations() {
+        if (recommendations.length === 0) return;
+
+        const element = document.getElementById('recommendation');
+        element.textContent = recommendations[recommendationIndex];
+
+        recommendationIndex = (recommendationIndex + 1) % recommendations.length;
+
+        setTimeout(rotateRecommendations, 8000);
+    }
 </script>
 </body>
 </html>

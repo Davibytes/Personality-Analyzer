@@ -15,9 +15,6 @@ public class TaskService {
     private final TaskRepository taskRepository;
 
     public Task createTask(Task task) {
-        task.setCreatedAt(System.currentTimeMillis());
-        task.setIsCompleted(false);
-        task.setIsLate(false);
         return taskRepository.save(task);
     }
 
@@ -30,6 +27,7 @@ public class TaskService {
     }
 
     public Task updateTask(Task task) {
+        task.setUpdatedAt(System.currentTimeMillis());
         return taskRepository.save(task);
     }
 
@@ -37,24 +35,7 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public Task completeTask(String id) {
-        Optional<Task> optionalTask = taskRepository.findById(id);
-        if (optionalTask.isPresent()) {
-            Task task = optionalTask.get();
-            task.setCompletedAt(System.currentTimeMillis());
-            task.setIsCompleted(true);
-
-            if (task.getCompletedAt() > task.getDeadline()) {
-                task.setIsLate(true);
-            }
-
-            long timeAvailable = task.getDeadline() - task.getCreatedAt();
-            long timeWaited = task.getStartedAt() - task.getCreatedAt();
-            double dup = (timeWaited / (double) timeAvailable) * 100;
-            task.setDupScore(dup);
-
-            return taskRepository.save(task);
-        }
-        return null;
+    public List<Task> getAllTasks() {
+        return taskRepository.findAll();
     }
 }

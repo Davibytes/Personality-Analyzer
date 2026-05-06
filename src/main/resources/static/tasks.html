@@ -14,7 +14,7 @@
         <ul class="nav-links">
             <li><a href="dashboard.html">Dashboard</a></li>
             <li><a href="profile.html">Profile</a></li>
-            <li><a href="tasks.html">Tasks</a></li>
+            <li><a href="tasks.html" style="color: var(--ocean-teal); font-weight: 700;">Tasks</a></li>
             <li><a href="#" id="logoutBtn">Logout</a></li>
         </ul>
     </div>
@@ -29,13 +29,42 @@
 
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="margin: 0;">Your Tasks</h2>
-                <button class="btn btn-primary">+ New Task</button>
+                <h2 style="margin: 0;">Create New Task</h2>
             </div>
+            <form id="taskForm" class="task-form">
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" placeholder="e.g., Math Assignment" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" placeholder="Describe your task" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskDeadline">Deadline</label>
+                        <input type="datetime-local" id="taskDeadline" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskPriority">Priority</label>
+                        <select id="taskPriority">
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create Task</button>
+            </form>
         </div>
 
         <div class="card">
-            <p style="text-align: center; padding: 40px 0;">No tasks yet. Click the "New Task" button to create your first task and start tracking your deadline habits.</p>
+            <h2>Your Tasks</h2>
+            <div id="tasksList" class="tasks-list"></div>
         </div>
     </div>
 </main>
@@ -53,12 +82,261 @@
             return;
         }
 
+        loadTasks();
+        setupTaskForm();
+
         document.getElementById('logoutBtn').addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.clear();
             window.location.href = 'index.html';
         });
     });
+
+    function setupTaskForm() {
+        const form = document.getElementById('taskForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const userId = localStorage.getItem('userId');
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const deadline = document.getElementById('taskDeadline').value;
+            const priority = document.getElementById('taskPriority').value;
+
+            if (!title || !deadline) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/tasks/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId,
+                        title,
+                        description,
+                        deadline: new Date(deadline).getTime(),
+                        priority,
+                        createdAt: Date.now(),
+                        startedAt: null,
+                        completedAt: null,
+                        isCompleted: false,
+                        isLate: false
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Task created successfully!');
+                    form.reset();
+                    loadTasks();
+                } else {
+                    alert(data.message || 'Failed to create task');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error creating task');
+            }
+        });
+    }
+
+    function loadTasks() {
+        const userId = localStorage.getItem('userId');
+
+        fetch(`/api/tasks/user/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                const tasksList = document.getElementById('tasksList');
+
+                if (!data.tasks || data.tasks.length === 0) {
+                    tasksList.innerHTML = '<p style="text-align: center; color: var(--soft-seafoam);">No tasks yet. Create one to get started!</p>';
+                    return;
+                }
+
+                tasksList.innerHTML = data.tasks.map(task => `
+                    <div class="task-card">
+                        <div class="task-header">
+                            <h3>${task.title}</h3>
+                            <span class="priority ${task.priority.toLowerCase()}">${task.priority}</span>
+                        </div>
+                        <p>${task.description || 'No description'}</p>
+                        <div class="task-meta">
+                            <span>Deadline: ${new Date(task.deadline).toLocaleDateString()}</span>
+                            <span>Status: ${task.isCompleted ? '✓ Completed' : 'Pending'}</span>
+                        </div>
+                        <div class="task-actions">
+                            ${!task.isCompleted ? `
+                                <button class="btn btn-small btn-primary" onclick="startTask('${task.id}')">Start</button>
+                                <button class="btn btn-small btn-success" onclick="completeTask('${task.id}')">Complete</button>
+                            ` : ''}
+                            <button class="btn btn-small btn-danger" onclick="deleteTask('${task.id}')">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('tasksList').innerHTML = '<p>Error loading tasks</p>';
+            });
+    }
+
+    function startTask(taskId) {
+        fetch(`/api/tasks/${taskId}/start`, { method: 'PUT' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Task started!');
+                    loadTasks();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function completeTask(taskId) {
+        fetch(`/api/tasks/${taskId}/complete`, { method: 'PUT' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.analysis) {
+                        localStorage.setItem('personalityType', data.analysis.personalityType);
+
+                        const message = `✓ TASK COMPLETED!\n\n📊 PERSONALITY TYPE\n${data.analysis.personalityType}\n\n📈 STATISTICS\nAverage DUP: ${data.analysis.averageDup.toFixed(1)}%\nCompletion Rate: ${data.analysis.completionRate}%\nOn-Time: ${data.analysis.onTimeSubmissions} | Late: ${data.analysis.lateSubmissions}\n\n💡 RECOMMENDATION\n${data.analysis.recommendation}`;
+                        alert(message);
+                    } else {
+                        alert('✓ Task completed! Complete more tasks to get personality insights.');
+                    }
+                    loadTasks();
+                } else {
+                    alert(data.message || 'Failed to complete task');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error completing task');
+            });
+    }
+
+    function deleteTask(taskId) {
+        if (confirm('Are you sure you want to delete this task?')) {
+            fetch(`/api/tasks/${taskId}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Task deleted');
+                        loadTasks();
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
 </script>
+
+<style>
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .task-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .task-form select {
+        padding: 8px 12px;
+        border: 1px solid var(--border-gray);
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .tasks-list {
+        display: grid;
+        gap: 16px;
+    }
+
+    .task-card {
+        background-color: var(--light-gray);
+        padding: 20px;
+        border-radius: 4px;
+        border-left: 4px solid var(--ocean-teal);
+    }
+
+    .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .task-header h3 {
+        margin: 0;
+        color: var(--midnight-teal);
+    }
+
+    .priority {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .priority.low {
+        background-color: #E8F5E9;
+        color: #2E7D32;
+    }
+
+    .priority.medium {
+        background-color: #FFF3E0;
+        color: #E65100;
+    }
+
+    .priority.high {
+        background-color: #FFEBEE;
+        color: #C62828;
+    }
+
+    .task-meta {
+        display: flex;
+        gap: 16px;
+        margin: 12px 0;
+        font-size: 13px;
+        color: var(--soft-seafoam);
+    }
+
+    .task-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .btn-small {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .btn-success {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-danger {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 </body>
 </html>
